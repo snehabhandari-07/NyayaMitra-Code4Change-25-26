@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Cases | NyayaMitra</title>
+    <link rel="stylesheet" href="/css/judgesDashboard.css"> <!-- reuse dashboard styling -->
+</head>
+<body>
+
+<header class="top-bar">
+    <h1>🧑‍⚖️ All Cases</h1>
+    <p>Judicial Case Monitoring System</p>
+</header>
+
+<section class="table-section">
+    <h2>📂 Case Overview</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>CNR Number</th>
+                <th>Court</th>
+                <th>Judge</th>
+                <th>Lawyer ID</th>
+                <th>Status</th>
+                <th>Total Hearings</th>
+                <th>Pendency (Days)</th>
+                <th>Next Hearing</th>
+                <th>Delay Alert</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% cases.forEach(caseItem => { %>
+                <tr class="<%= caseItem.isDelayed ? 'alert' : '' %>">
+                    <td><%= caseItem.cnrNumber %></td>
+                    <td><%= caseItem.courtName || 'N/A' %></td>
+                    <td><%= caseItem.judgeName || 'N/A' %></td>
+                    <td><%= caseItem.lawyerId || 'N/A' %></td>
+                    <td><%= caseItem.currentStatus %></td>
+                    <td><%= caseItem.totalHearings %></td>
+                    <td><%= caseItem.pendencyDays %></td>
+                    <td>
+                        <%= caseItem.nextHearingDate 
+                            ? new Date(caseItem.nextHearingDate).toLocaleDateString() 
+                            : 'N/A' %>
+                    </td>
+                    <td>
+                        <% if (caseItem.isDelayed) { %>
+                            🚨 Delayed
+                        <% } else { %>
+                            ✅ On Track
+                        <% } %>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Disposed Cases | NyayaMitra</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* ===============================
+       JUDICIAL THEME (SAME AS HEADER)
+    =============================== */
+    body {
+      background-color: #f4f6f9;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    .page-card {
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1px solid #e3e6ea;
+    }
+
+    .page-title {
+      font-weight: 600;
+      color: #1f2d3d;
+      letter-spacing: 0.3px;
+    }
+
+    /* Search */
+    .cnr-search input {
+      border-radius: 6px;
+    }
+
+    .cnr-search button {
+      background: linear-gradient(90deg, #1f3c88, #1e5bbf);
+      border: none;
+      color: #ffffff;
+      font-weight: 500;
+      letter-spacing: 0.4px;
+    }
+
+    .cnr-search button:hover {
+      background: linear-gradient(90deg, #18336f, #164fa3);
+    }
+
+    /* Table */
+    table {
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      background: linear-gradient(90deg, #1f3c88, #1e5bbf) !important;
+      color: #ffffff;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.6px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tbody tr:hover {
+      background-color: #eef3ff;
+    }
+
+    /* Disposed badge */
+    .badge-disposed {
+      background-color: #198754;
+      color: #ffffff;
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 14px;
+      letter-spacing: 0.4px;
+    }
+
+    /* Highlight row */
+    .cnr-highlight {
+      background-color: #fff7d6 !important;
+      border-left: 5px solid #1f3c88;
+      animation: blink 0.6s ease-in-out 2;
+    }
+
+    @keyframes blink {
+      0% { background-color: #fff7d6; }
+      50% { background-color: #ffe69c; }
+      100% { background-color: #fff7d6; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- SAME HEADER -->
+<%- include('partials/judge-header', { judgeName }) %>
+
+<div class="container-fluid" style="padding-top:70px">
+
+  <div class="card shadow-sm p-4 page-card">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="page-title mb-0">
+        ✅ Disposed Cases – Hon. <%= judgeName %>
+      </h5>
+      <span class="text-muted small">Judicial Case Registry</span>
+    </div>
+
+    <!-- 🔍 CNR SEARCH -->
+    <div class="row mb-4 cnr-search">
+      <div class="col-md-4">
+        <input
+          type="text"
+          id="cnrSearch"
+          class="form-control"
+          placeholder="Search by CNR Number"
+        />
+      </div>
+      <div class="col-md-2">
+        <button class="btn w-100" onclick="searchByCNR()">
+          <i class="fa-solid fa-magnifying-glass me-1"></i> Search
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle">
+        <thead>
+          <tr>
+            <th>CNR No</th>
+            <th>Case No</th>
+            <th>Status</th>
+            <th>Respondent</th>
+            <th>Petitioner</th>
+            <th>Filed Year</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (cases.length === 0) { %>
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                No disposed cases found
+              </td>
+            </tr>
+          <% } %>
+
+          <% cases.forEach(c => { %>
+            <tr data-cnr="<%= (c.cnrNumber || '').toUpperCase() %>">
+              <td class="fw-semibold"><%= c.cnrNumber || "-" %></td>
+              <td><%= c.caseNumber || "-" %></td>
+              <td>
+                <span class="badge badge-disposed">
+                  <%= c.newCaseStatus || "Disposed" %>
+                </span>
+              </td>
+              <td><%= c.respondentAdvocate || "-" %></td>
+              <td><%= c.petitionerAdvocate || "-" %></td>
+              <td><%= c.filedYear || c.caseYear || "-" %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+
+      </table>
+    </div>
+
+    <a href="/judges" class="btn btn-outline-secondary mt-4">
+      ⬅ Back to Dashboard
+    </a>
+
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- 🔎 SEARCH SCRIPT (SAME LOGIC) -->
+<script>
+  function searchByCNR() {
+    const input = document.getElementById("cnrSearch");
+    const searchValue = input.value.trim().toUpperCase();
+
+    if (!searchValue) {
+      alert("Please enter a CNR number");
+      return;
+    }
+
+    document.querySelectorAll(".cnr-highlight").forEach(row => {
+      row.classList.remove("cnr-highlight");
+    });
+
+    const targetRow = document.querySelector(
+      `tr[data-cnr="${searchValue}"]`
+    );
+
+    if (!targetRow) {
+      alert("❌ CNR number not found");
+      return;
+    }
+
+    targetRow.classList.add("cnr-highlight");
+    targetRow.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
+
+  document.getElementById("cnrSearch")
+    .addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        searchByCNR();
+      }
+    });
+</script>
+
+</body>
+</html>

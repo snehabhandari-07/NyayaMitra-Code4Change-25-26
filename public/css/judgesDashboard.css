@@ -1,0 +1,206 @@
+/* ===============================
+   NYAYAMITRA – JUDGE DASHBOARD UI
+   Government / Judicial Theme
+================================ */
+
+/* ---------- Root & Reset ---------- */
+:root {
+  --judicial-blue: #1e3a8a;
+  --judicial-blue-dark: #172554;
+  --judicial-gold: #c7a008;
+  --soft-bg: #f8fafc;
+  --card-bg: #ffffff;
+  --border-light: #e5e7eb;
+  --text-muted: #6b7280;
+}
+
+body {
+  background: var(--soft-bg);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  background: linear-gradient(180deg, var(--judicial-blue), var(--judicial-blue-dark));
+  color: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  min-height: 90vh;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar .brand {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.sidebar .muted-sm {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.sidebar hr {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar .nav-link {
+  color: #e5e7eb;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  transition: all 0.25s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* ---------- Header Top ---------- */
+.header-top {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 22px;
+  border-left: 6px solid var(--judicial-gold);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.header-top h4 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--judicial-blue-dark);
+}
+
+.header-top .muted-sm {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ---------- Cards ---------- */
+.card {
+  border: none;
+  border-radius: 14px;
+  background: var(--card-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
+}
+
+.card h6 {
+  font-weight: 600;
+  color: var(--judicial-blue-dark);
+}
+
+/* ---------- Overview Cards ---------- */
+.overview-card {
+  cursor: pointer;
+}
+
+.overview-card p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* ---------- Priority Cards ---------- */
+.priority-card {
+  border-radius: 16px;
+  padding: 22px;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.25s ease;
+}
+
+.priority-card:hover {
+  transform: scale(1.03);
+}
+
+.priority-card.high {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+}
+
+.priority-card.medium {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.priority-card.low {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* ---------- Tabs ---------- */
+.nav-tabs {
+  border-bottom: 2px solid var(--border-light);
+}
+
+.nav-tabs .nav-link {
+  color: var(--judicial-blue-dark);
+  font-weight: 600;
+  border: none;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+  border-bottom: 3px solid var(--judicial-gold);
+  color: var(--judicial-blue);
+}
+
+/* ---------- Tables (future-safe) ---------- */
+.table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+/* ---------- Timeline ---------- */
+.timeline-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.timeline-list li {
+  padding: 12px 16px;
+  border-left: 4px solid var(--judicial-gold);
+  background: #fff;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+/* ---------- Buttons ---------- */
+.btn-primary {
+  background: var(--judicial-blue);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--judicial-blue-dark);
+}
+
+/* ---------- Footer Override ---------- */
+footer {
+  background: #fff !important;
+  border-top: 2px solid var(--border-light);
+}
+
+footer p {
+  margin: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .sidebar {
+    min-height: auto;
+  }
+
+  .header-top {
+    text-align: center;
+  }
+}

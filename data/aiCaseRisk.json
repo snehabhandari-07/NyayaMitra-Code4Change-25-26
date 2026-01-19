@@ -1,0 +1,28 @@
+{
+  "high_risk": [
+    {
+      "cnr_number": "KAHC010257232016",
+      "case_number": 2336,
+      "case_age_days": 1746,
+      "total_hearings": 26
+    },
+    {
+      "cnr_number": "KAHC010317192015",
+      "case_number": 5320,
+      "case_age_days": 1710,
+      "total_hearings": 10
+    }
+  ],
+  "moderate_risk": [
+    {
+      "cnr_number": "KAHC010324222015",
+      "case_number": 4438
+    }
+  ],
+  "low_risk": [
+    {
+      "cnr_number": "KAHC010392732016",
+      "case_number": 6020
+    }
+  ]
+}

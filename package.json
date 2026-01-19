@@ -1,0 +1,32 @@
+{
+  "name": "demo_1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Sneha Bhandari",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "axios": "^1.13.2",
+    "csv-parser": "^3.2.0",
+    "csvtojson": "^2.0.14",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "form-data": "^4.0.5",
+    "groq-sdk": "^0.37.0",
+    "mongoose": "^9.1.2",
+    "multer": "^2.0.2",
+    "node-cache": "^5.1.2",
+    "openai": "^6.16.0",
+    "twilio": "^5.11.2",
+    "xlsx": "^0.18.5"
+  },
+  "description": ""
+}

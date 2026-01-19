@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Scheduling</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        input, button { padding: 8px; margin: 5px 0; }
+        .high { color: red; font-weight: bold; }
+        .medium { color: orange; font-weight: bold; }
+        .low { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Smart Scheduling</h2>
+
+    <label for="cnr">CNR Number:</label>
+    <input type="text" id="cnr" placeholder="Enter CNR Number">
+
+    <label for="hearingDate">Select Date:</label>
+    <input type="date" id="hearingDate" value="<?= new Date().toISOString().split('T')[0] ?>">
+
+    <button onclick="getSmartSchedule()">Get Suggested Schedule</button>
+
+    <div id="scheduleResult" style="margin-top: 20px;"></div>
+
+    <script>
+    async function getSmartSchedule() {
+        const cnr = document.getElementById('cnr').value;
+        const selectedDate = document.getElementById('hearingDate').value;
+
+        if (!cnr) {
+            alert("Please enter a CNR number");
+            return;
+        }
+
+        try {
+            const response = await fetch('https://nyayamitra-smart-scheduling.onrender.com/smart-schedule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ cnr_number: cnr })
+            });
+
+            const data = await response.json();
+
+            // Compute next hearing date
+            const nextHearingDate = new Date(selectedDate);
+            nextHearingDate.setDate(nextHearingDate.getDate() + data.suggested_next_hearing_days);
+
+            // Priority color class
+            let priorityClass = "";
+            if (data.priority === "High") priorityClass = "high";
+            else if (data.priority === "Medium") priorityClass = "medium";
+            else priorityClass = "low";
+
+            // Display
+            document.getElementById('scheduleResult').innerHTML = `
+                <h3>Smart Scheduling Info</h3>
+                <p><strong>CNR:</strong> ${data.cnr_number}</p>
+                <p><strong>Priority:</strong> <span class="${priorityClass}">${data.priority}</span></p>
+                <p><strong>Suggested Next Hearing (days):</strong> ${data.suggested_next_hearing_days}</p>
+                <p><strong>Next Hearing Date:</strong> ${nextHearingDate.toDateString()}</p>
+                <p><strong>Reason:</strong> ${data.reason}</p>
+                <p><strong>Hearing Count:</strong> ${data.hearing_count}</p>
+                <p><strong>Stage:</strong> ${data.stage}</p>
+            `;
+
+        } catch (error) {
+            console.error(error);
+            alert("Error fetching smart schedule");
+        }
+    }
+    </script>
+</body>
+</html>

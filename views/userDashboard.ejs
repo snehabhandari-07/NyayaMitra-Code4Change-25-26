@@ -1,0 +1,451 @@
+<%- include('partials/header') %> 
+
+<main class="container mx-auto px-6 py-8">
+    <div class="flex items-center space-x-4 mb-8 border-b-4 border-amber-500 pb-6">
+        <div>
+            <p class="text-slate-500 text-sm font-semibold uppercase tracking-widest">Public Access & Legal Awareness Portal</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-7 space-y-6">
+            <div class="bg-white rounded-[2rem] shadow-xl border-2 border-slate-100 overflow-hidden">
+                <div class="bg-blue-900 px-8 py-6 flex justify-between items-center">
+                    <h3 class="text-white font-black uppercase tracking-widest text-sm">Track My Case</h3>
+                    <i class="fas fa-search-location text-blue-300"></i>
+                </div>
+                
+                <div class="p-8">
+                    <div class="flex space-x-3 mb-8">
+                        <input type="text" id="cnrInput" placeholder="Enter 16-Digit CNR Number" 
+                            class="flex-1 border-2 border-slate-100 rounded-2xl p-4 text-sm focus:ring-4 focus:ring-blue-100 outline-none transition-all shadow-inner">
+                        <button onclick="searchCase()" class="bg-blue-900 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase hover:bg-blue-800 shadow-lg active:scale-95 transition-all">
+                            Find Case
+                        </button>
+                    </div>
+
+                    <div id="caseResult" class="hidden animate-in fade-in duration-500">
+                        <div class="bg-slate-50 rounded-[2rem] border-2 border-slate-100 p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <span id="statusBadge" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Active</span>
+                                <p class="text-[10px] font-black text-slate-400" id="displayCnr"></p>
+                            </div>
+                            
+                            <h4 id="displayStage" class="text-xl font-black text-blue-900 mb-2">---</h4>
+                            <p id="displayExplanation" class="text-sm text-slate-600 leading-relaxed italic mb-6">---</p>
+
+                            <div class="grid grid-cols-2 gap-4 border-t-2 border-white pt-6">
+                                <div>
+                                    <p class="text-[9px] font-black text-slate-400 uppercase">Hearing Date</p>
+                                    <p id="displayNextDate" class="text-sm font-black text-blue-900 transition-colors">--/--/----</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase">Court Location</p>
+                                    <p id="displayLocation" class="text-sm font-black text-slate-700">--</p>
+                                </div>
+                            </div>
+
+                            <div id="historySection" class="mt-8 pt-6 border-t border-slate-200 hidden">
+                                <p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Case History / Timeline</p>
+                                <div id="historyTimeline" class="space-y-4">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-5 space-y-6">
+            <div class="bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden border-4 border-white">
+                <div class="p-8">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="h-8 w-8 bg-amber-500 rounded-lg flex items-center justify-center text-slate-900 shadow-lg">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3 class="text-white font-black uppercase tracking-widest text-sm">Nyaya-AI Assistant</h3>
+                    </div>
+                    
+                    <p class="text-slate-400 text-xs font-semibold mb-6 leading-relaxed">
+                        Enter any IPC Section. I will explain the law, conditions, and provide regional translations.
+                    </p>
+
+                    <div class="space-y-4">
+                        <input type="text" id="aiQuery" placeholder="Try 'IPC_127'" 
+                            class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-white text-sm focus:border-amber-500 outline-none transition-all shadow-inner">
+                        <button id="aiBtn" onclick="askNyayaAI()" class="w-full bg-amber-500 text-slate-900 font-black py-4 rounded-2xl text-xs uppercase tracking-widest shadow-lg hover:bg-amber-400 active:scale-95 transition-all">
+                            Ask Assistant
+                        </button>
+                    </div>
+
+                    <div id="aiResponse" class="hidden mt-8 p-6 bg-slate-800/50 rounded-2xl border-2 border-slate-700 border-dashed max-h-[400px] overflow-y-auto custom-scrollbar">
+                        <p id="aiResultText" class="text-slate-200 text-sm leading-relaxed whitespace-pre-line"></p>
+                    </div>
+                </div>
+            </div>
+
+           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div onclick="showFilingGuide()" class="bg-white p-6 rounded-3xl border-2 border-slate-100 text-center hover:border-blue-900 transition-all cursor-pointer group">
+        <i class="fas fa-file-invoice text-blue-900 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+        <p class="text-[10px] font-black uppercase">Filing Guide</p>
+    </div>
+    
+    <div onclick="showDocumentGuide()" class="bg-white p-6 rounded-3xl border-2 border-slate-100 text-center hover:border-blue-900 transition-all cursor-pointer group">
+        <i class="fas fa-folder-open text-blue-900 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+        <p class="text-[10px] font-black uppercase">Doc Guide</p>
+    </div>
+
+    <div onclick="showLegalRights()" class="bg-white p-6 rounded-3xl border-2 border-slate-100 text-center hover:border-blue-900 transition-all cursor-pointer group">
+        <i class="fas fa-balance-scale text-blue-900 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+        <p class="text-[10px] font-black uppercase">Legal Rights</p>
+    </div>
+
+    <div onclick="showFullLegalGuide()" class="bg-white p-6 rounded-3xl border-2 border-slate-100 text-center hover:border-blue-900 transition-all cursor-pointer group">
+    <i class="fas fa-book-open text-blue-900 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+    <p class="text-[10px] font-black uppercase ">Full Guide</p>
+</div>
+</div>
+            </div>
+        </div>
+    </div>
+    <div id="filingModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] max-w-2xl w-full shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+        <div class="bg-blue-900 p-6 flex justify-between items-center">
+            <h3 class="text-white font-black uppercase tracking-widest text-sm">Citizen Filing Guide</h3>
+            <button onclick="closeModal('filingModal')" class="text-white/50 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-8 space-y-6">
+            <div class="flex items-start space-x-4">
+                <div class="bg-amber-100 text-amber-600 h-8 w-8 rounded-full flex items-center justify-center font-black flex-shrink-0">1</div>
+                <div>
+                    <h4 class="font-black text-blue-900 text-sm uppercase">Incident Documentation</h4>
+                    <p class="text-slate-500 text-xs">Gather evidence, photos, and names of witnesses involved in the dispute or crime.</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-4">
+                <div class="bg-amber-100 text-amber-600 h-8 w-8 rounded-full flex items-center justify-center font-black flex-shrink-0">2</div>
+                <div>
+                    <h4 class="font-black text-blue-900 text-sm uppercase">Lodge FIR/Complaint</h4>
+                    <p class="text-slate-500 text-xs">Visit your local police station for criminal matters or a civil court office for property disputes. Request a **free copy** of the FIR.</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-4">
+                <div class="bg-amber-100 text-amber-600 h-8 w-8 rounded-full flex items-center justify-center font-black flex-shrink-0">3</div>
+                <div>
+                    <h4 class="font-black text-blue-900 text-sm uppercase">Track via CNR</h4>
+                    <p class="text-slate-500 text-xs">Once filed, you will receive a 16-digit CNR Number. Use this portal to track every hearing and court order.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="rightsModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] max-w-2xl w-full shadow-2xl overflow-hidden animate-in zoom-in duration-300">
+        <div class="bg-amber-500 p-6 flex justify-between items-center">
+            <h3 class="text-slate-900 font-black uppercase tracking-widest text-sm">Your Legal Protections</h3>
+            <button onclick="closeModal('rightsModal')" class="text-slate-900/50 hover:text-slate-900"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border-l-4 border-amber-500 pl-4">
+                <h4 class="font-black text-slate-900 text-xs uppercase mb-1">Right to Legal Aid</h4>
+                <p class="text-slate-500 text-[11px]">Under Article 39A, you are entitled to a **Free Lawyer** if you cannot afford one.</p>
+            </div>
+            <div class="border-l-4 border-amber-500 pl-4">
+                <h4 class="font-black text-slate-900 text-xs uppercase mb-1">Right to Copy</h4>
+                <p class="text-slate-500 text-[11px]">You have the right to receive copies of all court orders and evidence filed against you.</p>
+            </div>
+            <div class="border-l-4 border-amber-500 pl-4">
+                <h4 class="font-black text-slate-900 text-xs uppercase mb-1">24-Hour Rule</h4>
+                <p class="text-slate-500 text-[11px]">If arrested, the police **must** produce you before a judge within 24 hours.</p>
+            </div>
+            <div class="border-l-4 border-amber-500 pl-4">
+                <h4 class="font-black text-slate-900 text-xs uppercase mb-1">Speedy Trial</h4>
+                <p class="text-slate-500 text-[11px]">You have the right to a trial that is not delayed unreasonably without cause.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="docGuideModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] max-w-4xl w-full max-h-[90vh] shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col">
+        <div class="bg-emerald-600 p-6 flex justify-between items-center">
+            <h3 class="text-white font-black uppercase tracking-widest text-sm">Case Document Guide (India)</h3>
+            <button onclick="closeModal('docGuideModal')" class="text-white/50 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="p-8 overflow-y-auto custom-scrollbar space-y-8">
+            <div class="space-y-3">
+                <h4 class="text-blue-900 font-black uppercase text-xs flex items-center">
+                    <i class="fas fa-gavel mr-2"></i> 1. Criminal & FIR Cases
+                </h4>
+                <div class="bg-slate-50 p-4 rounded-2xl text-xs text-slate-600 leading-relaxed border border-slate-100">
+                    <p class="font-bold text-slate-900 mb-2">Essential Evidence:</p>
+                    <ul class="list-disc ml-4 space-y-1">
+                        <li>ID Proof (Aadhaar/PAN/Voter ID)</li>
+                        <li>Detailed written complaint describing the incident</li>
+                        <li>CCTV, Photos, or Videos of the scene</li>
+                        <li>Medical reports (MLC) for physical injuries</li>
+                        <li>Witness statements and contact details</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-blue-900 font-black uppercase text-xs flex items-center">
+                    <i class="fas fa-home mr-2"></i> 2. Domestic Violence & Protection
+                </h4>
+                <div class="bg-slate-50 p-4 rounded-2xl text-xs text-slate-600 leading-relaxed border border-slate-100">
+                    <ul class="list-disc ml-4 space-y-1">
+                        <li>Proof of living together (Ration card/Rent agreement)</li>
+                        <li>Proof of harassment (WhatsApp chats, Call logs, Photos)</li>
+                        <li>Marriage Certificate & Child birth certificates</li>
+                        <li>Medical records from injuries</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-blue-900 font-black uppercase text-xs flex items-center">
+                    <i class="fas fa-map-marked-alt mr-2"></i> 3. Property & Land Disputes
+                </h4>
+                <div class="bg-slate-50 p-4 rounded-2xl text-xs text-slate-600 leading-relaxed border border-slate-100">
+                    <ul class="list-disc ml-4 space-y-1">
+                        <li>Registered Sale Deed / Gift Deed</li>
+                        <li>Encumbrance Certificate (EC)</li>
+                        <li>Khata / 7/12 extract / Mutation records</li>
+                        <li>Property tax receipts & Survey maps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h4 class="text-blue-900 font-black uppercase text-xs flex items-center">
+                    <i class="fas fa-shopping-cart mr-2"></i> 4. Consumer Complaints
+                </h4>
+                <div class="bg-slate-50 p-4 rounded-2xl text-xs text-slate-600 leading-relaxed border border-slate-100">
+                    <ul class="list-disc ml-4 space-y-1">
+                        <li>Invoice or Bill of purchase</li>
+                        <li>Warranty / Guarantee card</li>
+                        <li>Service engineer report or replacement slips</li>
+                        <li>Email/Chat proof of complaint to seller</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="p-4 bg-amber-50 rounded-xl border border-amber-100">
+                <p class="text-[10px] text-amber-700 leading-tight">
+                    <strong>Note:</strong> While proof strengthens your case, no document is mandatory to insist on an FIR in cognizable offenses. Digital evidence (WhatsApp/Email) is legally admissible.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="fullLegalGuideModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] max-w-5xl w-full max-h-[90vh] shadow-2xl overflow-hidden animate-in zoom-in duration-300 flex flex-col">
+        <div class="bg-slate-900 p-6 flex justify-between items-center">
+            <h3 class="text-white font-black uppercase tracking-widest text-sm">Citizen Legal Guide (India)</h3>
+            <button onclick="closeModal('fullLegalGuideModal')" class="text-white/50 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="p-8 overflow-y-auto custom-scrollbar space-y-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h4 class="text-blue-900 font-black uppercase text-xs border-b-2 border-amber-500 pb-2">1. Filing a Case</h4>
+                    <div class="space-y-2">
+                        <p class="text-[11px] font-bold text-slate-700">Criminal Matters:</p>
+                        <ul class="text-[10px] text-slate-500 list-disc ml-4 space-y-1">
+                            <li>Police must register FIR for cognizable offences</li>
+                            <li>Citizen is entitled to a free copy of the FIR</li>
+                            <li>If refused, approach Magistrate under Sec 156(3) CrPC</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-blue-900 font-black uppercase text-xs border-b-2 border-amber-500 pb-2">2. Court Stages</h4>
+                    <ol class="text-[10px] text-slate-500 space-y-1 list-decimal ml-4">
+                        <li><strong>Filing:</strong> Registration of complaint</li>
+                        <li><strong>Summons:</strong> Official notice to opposite party</li>
+                        <li><strong>Evidence:</strong> Submission of proof/witnesses</li>
+                        <li><strong>Judgment:</strong> Final court decision</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-6 rounded-3xl border-2 border-slate-100">
+                <h4 class="text-blue-900 font-black uppercase text-xs mb-4">Bail & Trial Protections</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <p class="text-[10px] font-black text-amber-600 uppercase mb-2">Bail Types</p>
+                        <p class="text-[10px] text-slate-500 leading-relaxed">Regular (after arrest), Anticipatory (before arrest), and Interim.</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-amber-600 uppercase mb-2">Fundamental Rights</p>
+                        <ul class="text-[10px] text-slate-500 space-y-1">
+                            <li>Art 14: Equality before law</li>
+                            <li>Art 21: Right to life & liberty</li>
+                            <li>Art 39A: Free legal aid</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black text-amber-600 uppercase mb-2">Arrest Rights</p>
+                        <p class="text-[10px] text-slate-500">Must be told reason for arrest (Sec 50) and produced in court within 24 hours (Sec 57).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="text-blue-900 font-black uppercase text-xs">Essential IPC Sections</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                        <p class="text-[10px] font-black text-blue-900">302: Murder</p>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                        <p class="text-[10px] font-black text-blue-900">378: Theft</p>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                        <p class="text-[10px] font-black text-blue-900">420: Fraud</p>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200 rounded-xl">
+                        <p class="text-[10px] font-black text-blue-900">499: Defamation</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <p class="text-[9px] text-blue-800 text-center uppercase font-black tracking-widest">
+                    Disclaimer: This guide is for general awareness. Consult Legal Services Authority for specific help.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+
+<script>
+    // 1. CNR SEARCH FUNCTION
+    async function searchCase() {
+        const cnr = document.getElementById('cnrInput').value;
+        const resultBox = document.getElementById('caseResult');
+        const historyTimeline = document.getElementById('historyTimeline');
+        const historySection = document.getElementById('historySection');
+        const nextDateDisplay = document.getElementById('displayNextDate');
+
+        if (!cnr) return alert("Please enter a CNR number");
+
+        try {
+            const res = await fetch(`/user/case-lookup/${cnr}`);
+            const data = await res.json();
+
+            if (res.ok) {
+                resultBox.classList.remove('hidden');
+                document.getElementById('displayCnr').innerText = "CNR: " + data.cnr;
+                document.getElementById('displayStage').innerText = data.currentStage;
+                document.getElementById('displayExplanation').innerText = data.explanation;
+                document.getElementById('displayLocation').innerText = data.courtLocation;
+
+                // --- SMART DATE LOGIC ---
+                if (data.status === "Completed") {
+                    nextDateDisplay.innerText = "Case Closed";
+                    nextDateDisplay.className = "text-sm font-black text-emerald-600"; // Green
+                } else if (!data.nextHearing) {
+                    nextDateDisplay.innerText = "Awaiting Schedule";
+                    nextDateDisplay.className = "text-sm font-black text-amber-500"; // Amber
+                } else {
+                    nextDateDisplay.innerText = data.nextHearing;
+                    nextDateDisplay.className = "text-sm font-black text-blue-900"; // Default Blue
+                }
+
+                // --- PROGRESS BAR ---
+                const stageMap = { "Admission": "25%", "Evidence": "50%", "Arguments": "75%", "Judgment": "100%" };
+                document.getElementById('progressBar').style.width = stageMap[data.currentStage] || "15%";
+
+                // --- HISTORY TIMELINE ---
+                if (data.history && data.history.length > 0) {
+                    historySection.classList.remove('hidden');
+                    historyTimeline.innerHTML = data.history.map(item => `
+                        <div class="flex items-center space-x-4 border-l-2 border-slate-200 ml-2 pl-4 pb-2 relative">
+                            <div class="absolute -left-[5px] top-0 h-2 w-2 rounded-full bg-blue-900"></div>
+                            <div class="w-16 text-[9px] font-black text-slate-400 uppercase">${new Date(item.date).toLocaleDateString()}</div>
+                            <div class="flex-1 text-[11px] font-bold text-slate-700">${item.stage} - <span class="text-slate-400 font-medium">${item.purpose || 'Hearing'}</span></div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                alert("Case not found.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    // 2. NYAYA-AI ASSISTANT
+    async function askNyayaAI() {
+        const query = document.getElementById('aiQuery').value;
+        const responseBox = document.getElementById('aiResponse');
+        const resultText = document.getElementById('aiResultText');
+        const btn = document.getElementById('aiBtn');
+
+        if (!query) return;
+
+        responseBox.classList.remove('hidden');
+        resultText.innerHTML = "<em>Nyaya-AI is thinking...</em>";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch("/ai/ask-nyaya", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query })
+            });
+            const data = await res.json();
+            resultText.innerText = data.answer;
+        } catch (err) {
+            resultText.innerText = "AI service unavailable. Try again later.";
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function showFilingGuide() {
+    document.getElementById('filingModal').classList.remove('hidden');
+}
+
+function showLegalRights() {
+    document.getElementById('rightsModal').classList.remove('hidden');
+}
+
+
+// Add this to your existing script block
+function showDocumentGuide() {
+    document.getElementById('docGuideModal').classList.remove('hidden');
+}
+
+// Update your existing closeModal to handle any ID
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+
+function showFullLegalGuide() {
+    document.getElementById('fullLegalGuideModal').classList.remove('hidden');
+}
+
+// Ensure the general close handler includes the new modal
+window.onclick = function(event) {
+    if (event.target.classList.contains('bg-slate-900/80')) {
+        document.getElementById('filingModal').classList.add('hidden');
+        document.getElementById('rightsModal').classList.add('hidden');
+        document.getElementById('docGuideModal').classList.add('hidden');
+        document.getElementById('fullLegalGuideModal').classList.add('hidden');
+    }
+}
+</script>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+    .whitespace-pre-line { white-space: pre-line; }
+</style>
+
+<%- include('partials/footer') %>

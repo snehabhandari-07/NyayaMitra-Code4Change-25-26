@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .njdg-gradient {
+        background: linear-gradient(90deg, #1e3a8a 0%, #1e40af 100%);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #1e3a8a;
+        border-radius: 10px;
+      }
+
+      /* Highlight styling for Cause List matches */
+      mark.lawyer-match {
+        background-color: #fbbf24; /* Amber 400 */
+        color: #0f172a; /* Slate 900 */
+        font-weight: 800;
+        padding: 0 2px;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50">
+    <nav class="njdg-gradient text-white shadow-xl sticky top-0 z-50">
+      <div
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="bg-white p-1.5 rounded-lg shadow-inner">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
+              alt="Logo"
+              class="h-10"
+            />
+          </div>
+          <div>
+            <h2 class="text-xl tracking-tight">
+              NYAYAMITRA
+            </h2>
+            <p
+              class="text-[10px] uppercase tracking-[0.2em] opacity-90 font-semibold text-blue-100"
+            >
+              Advocate Intelligence System
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-8">
+          <div class="hidden md:flex space-x-6 text-sm font-medium">
+            <a
+              href="/lawyer/reports/<%= lawyerName %>"
+              target="_blank"
+              class="hover:text-blue-200 transition-colors flex items-center"
+            >
+               Reports
+            </a>
+
+            <button
+              onclick="toggleCauseList()"
+              class="relative flex items-center hover:text-blue-200 transition-all group"
+            >
+              <span>Today's Schedule</span>
+              <span
+                id="causeCountBadge"
+                class="absolute -top-2 -right-3 bg-red-600 text-[8px] px-1.5 py-0.5 rounded-full hidden border border-white animate-bounce"
+                >0</span
+              >
+            </button>
+          </div>
+
+          <div
+            class="flex items-center space-x-3 border-l border-blue-400 pl-6"
+          >
+            <div class="text-right hidden sm:block">
+              <p class="text-xs font-black leading-none uppercase">
+                <%= lawyerName %>
+              </p>
+              <p
+                class="text-[9px] text-blue-200 uppercase tracking-widest mt-1"
+              >
+                Senior Counsel
+              </p>
+            </div>
+            <div
+              class="h-10 w-10 bg-amber-500 rounded-full flex items-center justify-center font-black border-2 border-white shadow-md text-white text-lg"
+            >
+              <%= lawyerName.charAt(0) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div
+      id="causeListDrawer"
+      class="fixed top-0 right-0 w-96 h-full bg-white shadow-[0_0_50px_rgba(0,0,0,0.3)] z-[100] transform translate-x-full transition-transform duration-500 ease-in-out border-l-8 border-amber-500"
+    >
+      <div
+        class="njdg-gradient p-8 text-white flex justify-between items-start"
+      >
+        <div>
+          <h4
+            class="font-black uppercase tracking-tighter text-lg leading-none"
+          >
+            Court Cause List
+          </h4>
+          <p
+            class="text-[10px] text-blue-200 uppercase tracking-[0.2em] mt-2 font-bold"
+          >
+            NJDG Live Integration
+          </p>
+        </div>
+        <button
+          onclick="toggleCauseList()"
+          class="h-10 w-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-red-500 hover:text-white transition-all"
+        >
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 border-b bg-slate-50 flex flex-col space-y-3">
+        <div class="flex items-center space-x-3">
+          <div class="flex-1 relative">
+            <i
+              class="fas fa-calendar absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"
+            ></i>
+            <input
+              type="date"
+              id="headerCauseDate"
+              class="w-full pl-9 pr-3 py-2.5 text-xs border-2 border-slate-200 rounded-xl outline-none focus:border-blue-900 transition-all font-bold text-slate-700"
+            />
+          </div>
+          <button
+            onclick="fetchHeaderCauseList()"
+            class="bg-blue-900 text-white h-10 w-12 rounded-xl hover:bg-blue-800 shadow-lg active:scale-95 transition-all"
+          >
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center px-1">
+            <div class="flex space-x-2">
+                <button onclick="jumpToDate('2018-10-26')" class="text-[8px] font-black bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-500 hover:text-white transition-all">
+                    OCT 26 (DEMO)
+                </button>
+            </div>
+            <button
+                onclick="resetToToday()"
+                class="text-[9px] font-black text-blue-900 hover:text-amber-600 uppercase tracking-widest transition-colors flex items-center"
+            >
+                <i class="fas fa-undo-alt mr-1"></i> Reset to Today
+            </button>
+        </div>
+      </div>
+
+      <div
+        id="headerCauseListContent"
+        class="p-6 overflow-y-auto h-[calc(100%-200px)] custom-scrollbar bg-slate-50/50 text-slate-700"
+      >
+        <div
+          class="flex flex-col items-center justify-center h-full text-slate-400 text-center space-y-4 opacity-50"
+        >
+          <i class="fas fa-clipboard-list text-5xl"></i>
+          <p class="text-[10px] font-black uppercase tracking-widest">
+            Select a Date to Sync Listings
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="drawerOverlay"
+      onclick="toggleCauseList()"
+      class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[90] hidden"
+    ></div>
+
+    <script>
+      // 1. Drawer Visibility Toggle
+      function toggleCauseList() {
+        const drawer = document.getElementById("causeListDrawer");
+        const overlay = document.getElementById("drawerOverlay");
+        const isOpen = !drawer.classList.contains("translate-x-full");
+
+        if (isOpen) {
+          drawer.classList.add("translate-x-full");
+          overlay.classList.add("hidden");
+          document.body.style.overflow = "auto";
+        } else {
+          drawer.classList.remove("translate-x-full");
+          overlay.classList.remove("hidden");
+          document.body.style.overflow = "hidden";
+          // Trigger auto-fetch if date is already set
+          fetchHeaderCauseList();
+        }
+      }
+
+      // 2. Reset Function to jump to today YYYY-MM-DD
+      function resetToToday() {
+        const dateInput = document.getElementById("headerCauseDate");
+        const today = new Date().toISOString().split("T")[0];
+        dateInput.value = today;
+        fetchHeaderCauseList();
+      }
+
+      // 3. Jump to specific appearance date
+      function jumpToDate(dateStr) {
+        const dateInput = document.getElementById("headerCauseDate");
+        dateInput.value = dateStr;
+        fetchHeaderCauseList();
+      }
+
+      // 4. Fetch and Render Logic
+      async function fetchHeaderCauseList() {
+        const dateInput = document.getElementById("headerCauseDate");
+        const container = document.getElementById("headerCauseListContent");
+        const badge = document.getElementById("causeCountBadge");
+        const lawyerName = "<%= lawyerName %>";
+
+        const selectedDate = dateInput.value;
+        if (!selectedDate) return;
+
+        // Loading State
+        container.innerHTML = `
+            <div class="flex flex-col items-center py-20">
+                <div class="animate-spin h-8 w-8 border-4 border-blue-900 border-t-transparent rounded-full"></div>
+                <p class="text-[9px] font-black text-slate-500 mt-4 uppercase">Syncing Court Records: ${selectedDate}</p>
+            </div>`;
+
+        try {
+          const res = await fetch(
+            `/lawyer/fetch-cause-list?date=${selectedDate}&lawyerName=${encodeURIComponent(lawyerName)}`
+          );
+          const data = await res.json();
+
+          if (data && data.cases && data.cases.length > 0) {
+            let html = `<p class="text-[10px] font-black text-slate-400 mb-4 uppercase tracking-widest">Total Daily Listings: ${data.total_cases}</p>`;
+            let matchCount = 0;
+
+            // Sort data to bring lawyer's matches to top (if using lawyerName in backend proxy)
+            data.cases.forEach((c) => {
+              const isMyCase =
+                lawyerName &&
+                c.bench.toLowerCase().includes(lawyerName.toLowerCase());
+              
+              if (isMyCase) matchCount++;
+
+              html += `
+                    <div class="mb-3 p-4 rounded-2xl border-2 ${
+                      isMyCase
+                        ? "border-amber-500 bg-amber-50 ring-2 ring-amber-200"
+                        : "border-slate-100 bg-white"
+                    } shadow-sm transition-all hover:shadow-md">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded bg-slate-900 text-white uppercase tracking-tighter">Court ${c.court_number}</span>
+                            ${
+                              isMyCase
+                                ? '<span class="text-[8px] font-black text-amber-600 uppercase animate-pulse"><i class="fas fa-user-tie mr-1"></i>Your Appearance</span>'
+                                : ""
+                            }
+                        </div>
+                        <p class="text-xs font-bold text-slate-800 leading-tight">${
+                          c.bench
+                        }</p>
+                        <div class="mt-3 pt-2 border-t border-slate-50 flex justify-between items-center">
+                            <span class="text-[8px] font-bold text-slate-400 uppercase truncate w-24">${c.court_name}</span>
+                            <span class="text-[10px] font-black text-blue-800 uppercase italic">${c.case_stage}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Update Header Notification Badge
+            badge.innerText = matchCount;
+            if(matchCount > 0) {
+                badge.classList.remove("hidden");
+            } else {
+                badge.classList.add("hidden");
+            }
+
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20 opacity-40">
+                    <i class="fas fa-calendar-times text-4xl mb-4"></i>
+                    <p class="text-xs font-bold uppercase">No listings for ${selectedDate}</p>
+                </div>`;
+            badge.classList.add("hidden");
+          }
+        } catch (e) {
+          container.innerHTML = `
+            <div class="bg-red-50 text-red-600 p-4 rounded-xl text-center border border-red-100">
+                <i class="fas fa-exclamation-triangle mb-2"></i>
+                <p class="text-[10px] font-bold uppercase">API Connection Timeout</p>
+                <p class="text-[8px] mt-1 opacity-70">Cause-List-API on Render may be sleeping.</p>
+            </div>`;
+        }
+      }
+
+      // 5. Page Load Initialization
+      document.addEventListener("DOMContentLoaded", () => {
+        const dateInput = document.getElementById("headerCauseDate");
+        if (dateInput) {
+          const today = new Date().toISOString().split("T")[0];
+          dateInput.value = today;
+        }
+      });
+    </script>
+  </body>
+</html>

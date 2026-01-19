@@ -1,0 +1,212 @@
+{
+  "127": {
+    "bns": "155",
+    "title": "Receiving property taken by war or depredation",
+    "category": "Offences Against State",
+    "punishment": "Imprisonment for life or up to 10 years and fine",
+    "change": "Modernized language; integrated with new chapters on State property"
+  },
+  "121": {
+    "bns": "147",
+    "title": "Waging war against the Government of India",
+    "category": "Offences Against State",
+    "punishment": "Death or imprisonment for life",
+    "change": "Expanded to include cyber and economic warfare"
+  },
+  "124A": {
+    "bns": "152",
+    "title": "Acts endangering sovereignty, unity and integrity of India",
+    "category": "Offences Against State",
+    "punishment": "Up to life imprisonment",
+    "change": "Sedition repealed; replaced with broader sovereignty protection"
+  },
+  "302": {
+    "bns": "101",
+    "title": "Murder",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Death or life imprisonment and fine",
+    "change": "Organized crime and mob lynching factors added"
+  },
+  "304": {
+    "bns": "105",
+    "title": "Culpable homicide not amounting to murder",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Life imprisonment or up to 10 years",
+    "change": "Clearer gradation of intent and negligence"
+  },
+  "304A": {
+    "bns": "106",
+    "title": "Death by negligence",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Up to 5 years imprisonment",
+    "change": "Special focus on hit-and-run cases"
+  },
+  "307": {
+    "bns": "109",
+    "title": "Attempt to murder",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Up to life imprisonment",
+    "change": "Stricter treatment for repeat offenders"
+  },
+  "323": {
+    "bns": "115",
+    "title": "Voluntarily causing hurt",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Up to 1 year or fine",
+    "change": "Community service option introduced"
+  },
+  "325": {
+    "bns": "117",
+    "title": "Voluntarily causing grievous hurt",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Up to 7 years",
+    "change": "Victim compensation emphasized"
+  },
+  "326": {
+    "bns": "118",
+    "title": "Grievous hurt by dangerous weapons",
+    "category": "Offences Affecting Human Body",
+    "punishment": "Life imprisonment or up to 10 years",
+    "change": "Acid attack classification expanded"
+  },
+  "354": {
+    "bns": "69",
+    "title": "Assault or criminal force to woman with intent to outrage modesty",
+    "category": "Sexual Offences",
+    "punishment": "Up to 5 years",
+    "change": "Gender-sensitive language updated"
+  },
+  "376": {
+    "bns": "64",
+    "title": "Rape",
+    "category": "Sexual Offences",
+    "punishment": "Minimum 10 years to life",
+    "change": "Stricter sentencing and fast-track procedures"
+  },
+  "376D": {
+    "bns": "70",
+    "title": "Gang rape",
+    "category": "Sexual Offences",
+    "punishment": "Life imprisonment or death",
+    "change": "Victim-centric compensation mandated"
+  },
+  "377": {
+    "bns": "—",
+    "title": "Unnatural offences",
+    "category": "Sexual Offences",
+    "punishment": "Decriminalized for consensual acts",
+    "change": "Only non-consensual acts retained under sexual assault laws"
+  },
+  "379": {
+    "bns": "303",
+    "title": "Theft",
+    "category": "Property Offences",
+    "punishment": "Up to 3 years",
+    "change": "Snatching treated as aggravated theft"
+  },
+  "380": {
+    "bns": "305",
+    "title": "Theft in dwelling house",
+    "category": "Property Offences",
+    "punishment": "Up to 7 years",
+    "change": "Higher punishment for repeat offenders"
+  },
+  "392": {
+    "bns": "309",
+    "title": "Robbery",
+    "category": "Property Offences",
+    "punishment": "Up to 10 years",
+    "change": "Use of weapons increases sentence"
+  },
+  "395": {
+    "bns": "310",
+    "title": "Dacoity",
+    "category": "Property Offences",
+    "punishment": "Life imprisonment",
+    "change": "Gang-based classification clarified"
+  },
+  "406": {
+    "bns": "316",
+    "title": "Criminal breach of trust",
+    "category": "Property Offences",
+    "punishment": "Up to 3 years",
+    "change": "Corporate fiduciary abuse included"
+  },
+  "409": {
+    "bns": "317",
+    "title": "Criminal breach of trust by public servant",
+    "category": "Property Offences",
+    "punishment": "Life imprisonment",
+    "change": "Anti-corruption alignment"
+  },
+  "420": {
+    "bns": "318(4)",
+    "title": "Cheating and dishonestly inducing delivery of property",
+    "category": "Property Offences",
+    "punishment": "Up to 7 years",
+    "change": "Explicit coverage of cyber fraud"
+  },
+  "463": {
+    "bns": "334",
+    "title": "Forgery",
+    "category": "Document & Digital Crimes",
+    "punishment": "Up to 2 years",
+    "change": "Digital documents included"
+  },
+  "465": {
+    "bns": "335",
+    "title": "Punishment for forgery",
+    "category": "Document & Digital Crimes",
+    "punishment": "Up to 2 years",
+    "change": "E-record forgery added"
+  },
+  "468": {
+    "bns": "336",
+    "title": "Forgery for purpose of cheating",
+    "category": "Document & Digital Crimes",
+    "punishment": "Up to 7 years",
+    "change": "Financial fraud emphasis"
+  },
+  "471": {
+    "bns": "338",
+    "title": "Using forged document",
+    "category": "Document & Digital Crimes",
+    "punishment": "Same as forgery",
+    "change": "Applies to digital identity misuse"
+  },
+  "498A": {
+    "bns": "85",
+    "title": "Cruelty by husband or relatives",
+    "category": "Offences Relating to Marriage",
+    "punishment": "Up to 3 years",
+    "change": "Safeguards against misuse introduced"
+  },
+  "503": {
+    "bns": "351",
+    "title": "Criminal intimidation",
+    "category": "Public Order",
+    "punishment": "Up to 2 years",
+    "change": "Covers online threats"
+  },
+  "506": {
+    "bns": "351",
+    "title": "Punishment for criminal intimidation",
+    "category": "Public Order",
+    "punishment": "Up to 7 years",
+    "change": "Higher fines for digital intimidation"
+  },
+  "509": {
+    "bns": "79",
+    "title": "Word, gesture or act intended to insult modesty of woman",
+    "category": "Sexual Offences",
+    "punishment": "Up to 3 years",
+    "change": "Expanded to electronic communication"
+  },
+  "511": {
+    "bns": "62",
+    "title": "Attempt to commit offences",
+    "category": "General Exceptions",
+    "punishment": "Up to half of main offence",
+    "change": "Standardized attempt provisions"
+  }
+}

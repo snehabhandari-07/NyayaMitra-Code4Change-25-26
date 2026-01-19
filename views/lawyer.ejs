@@ -1,0 +1,1268 @@
+<%- include('partials/header_lawyer') %>
+
+<div
+  class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 space-y-4 md:space-y-0 border-b-4 border-amber-500 pb-6"
+>
+  <div class="flex items-center space-x-4">
+    <br />
+    <div>
+      <!-- <h2 class="text-3xl font-black text-blue-900 tracking-tight">Lawyer Analytics Dashboard</h2> -->
+      <p class="text-slate-500 text-sm font-semibold uppercase tracking-widest">
+        Counsel Records: <span class="text-blue-700"><%= lawyerName %></span>
+      </p>
+    </div>
+  </div>
+  <form
+    action="/lawyer/dashboard/<%= lawyerName %>"
+    method="GET"
+    class="flex items-center space-x-2 w-full md:w-auto"
+  >
+    <div class="relative group">
+      <input
+        type="text"
+        name="search"
+        value="<%= (typeof searchQuery !== 'undefined') ? searchQuery : '' %>"
+        placeholder="Search CNR Number"
+        class="pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-100 focus:border-blue-900 outline-none text-sm w-full md:w-80 shadow-inner transition-all"
+      />
+      <i
+        class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-900"
+      ></i>
+    </div>
+    <button
+      type="submit"
+      class="bg-blue-900 text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-blue-800 transition-all shadow-lg active:scale-95 uppercase tracking-widest"
+    >
+      Search
+    </button>
+    <% if(typeof searchQuery !== 'undefined' && searchQuery) { %>
+    <a
+      href="/lawyer/dashboard/<%= lawyerName %>"
+      class="text-xs text-red-600 hover:text-red-800 font-bold px-2"
+      >RESET</a
+    >
+    <% } %>
+  </form>
+</div>
+<br />
+
+
+<br>
+<div class="mb-10 px-2">
+    <div class="bg-slate-900 rounded-[2.5rem] border-4 border-amber-500 shadow-2xl overflow-hidden">
+        <div class="bg-slate-800 px-10 py-6 border-b border-slate-700 flex justify-between items-center">
+            <div>
+                <h3 class="text-white font-black uppercase tracking-widest text-sm">
+                  NyayaMitra
+                </h3>
+                <p class="text-slate-400 text-[9px] uppercase font-bold mt-1">NJDG Data + BNS 2024 Legal Framework</p>
+            </div>
+            <div class="flex bg-slate-900 rounded-xl p-1">
+                <button onclick="switchIntelTab('approach')" id="btn-approach" class="px-4 py-2 text-[10px] font-black rounded-lg transition-all bg-amber-500 text-slate-900">APPROACH</button>
+                <button onclick="switchIntelTab('mapper')" id="btn-mapper" class="px-4 py-2 text-[10px] font-black rounded-lg transition-all text-slate-400">BNS MAPPER</button>
+            </div>
+        </div>
+
+        <div class="p-10">
+            <div class="flex gap-4">
+                <input type="text" id="intelInput" placeholder="Enter CNR for Tactics..." 
+                       class="flex-1 bg-slate-800 border-2 border-slate-700 rounded-2xl p-4 text-white text-sm outline-none focus:border-amber-500">
+                <button onclick="runIntelSearch()" class="bg-amber-500 text-slate-900 font-black px-8 py-4 rounded-2xl uppercase text-xs hover:scale-105 transition-all shadow-lg">
+                    Process Intelligence
+                </button>
+            </div>
+
+            <div id="intelLoader" class="hidden mt-8 text-center py-6">
+                <div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-amber-500 border-r-transparent"></div>
+                <p class="text-amber-500 text-[9px] font-black uppercase mt-3">Synthesizing Legal Codes...</p>
+            </div>
+
+            <div id="intelResultBox" class="hidden mt-8">
+                <div class="bg-slate-800/50 p-6 rounded-3xl border border-slate-700 relative">
+                    <span id="intelType" class="absolute top-[-10px] left-6 bg-slate-700 px-3 py-1 rounded text-[8px] font-black text-white uppercase"></span>
+                    <p id="intelContent" class="text-slate-200 text-sm leading-relaxed whitespace-pre-wrap italic"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 px-2">
+  <div
+    class="bg-white rounded-[2rem] shadow-lg border-2 border-slate-50 overflow-hidden flex flex-col group hover:border-blue-900 transition-all"
+  >
+    <div class="bg-blue-900 px-5 py-3 flex justify-between items-center">
+      <span class="text-[9px] font-black text-white uppercase tracking-widest"
+        >Ageing</span
+      >
+    </div>
+    <div class="p-4 h-48"><canvas id="riskChart"></canvas></div>
+  </div>
+
+  <div
+    class="bg-white rounded-[2rem] shadow-lg border-2 border-slate-50 overflow-hidden flex flex-col group hover:border-blue-900 transition-all"
+  >
+    <div class="bg-blue-900 px-5 py-3 flex justify-between items-center">
+      <span class="text-[9px] font-black text-white uppercase tracking-widest"
+        >Current Case Stages</span
+      >
+    </div>
+    <div class="p-4 h-48"><canvas id="stageChart"></canvas></div>
+  </div>
+
+  <div
+    class="bg-white rounded-[2rem] shadow-lg border-2 border-slate-50 overflow-hidden flex flex-col group hover:border-blue-900 transition-all"
+  >
+    <div class="bg-blue-900 px-5 py-3 flex justify-between items-center">
+      <span class="text-[9px] font-black text-white uppercase tracking-widest"
+        >Disposal / Resolution Mix</span
+      >
+    </div>
+    <div class="p-4 h-48"><canvas id="outcomeChart"></canvas></div>
+  </div>
+
+  <div
+    class="bg-white rounded-[2rem] shadow-lg border-2 border-slate-50 overflow-hidden flex flex-col group hover:border-blue-900 transition-all"
+  >
+    <div class="bg-blue-900 px-5 py-3 flex justify-between items-center">
+      <span class="text-[9px] font-black text-white uppercase tracking-widest"
+        >Upcoming Hearing Load</span
+      >
+    </div>
+    <div class="p-4 h-48"><canvas id="loadChart"></canvas></div>
+  </div>
+</div>
+
+<div
+  id="registerCaseModal"
+  class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4"
+>
+  <div
+    class="bg-white rounded-[2.5rem] max-w-4xl w-full max-h-[90vh] shadow-2xl overflow-hidden flex flex-col border-4 border-white animate-in zoom-in duration-300"
+  >
+    <div class="bg-blue-900 p-8 flex justify-between items-center">
+      <div>
+        <h3 class="text-white font-black uppercase tracking-widest text-lg">
+          Manual Case Registration
+        </h3>
+        <p
+          class="text-blue-300 text-xs font-bold uppercase tracking-tighter mt-1"
+        >
+          Add or Update Legal Records in Master Database
+        </p>
+      </div>
+      <button
+        onclick="closeModal('registerCaseModal')"
+        class="text-white/40 hover:text-white transition-colors"
+      >
+        <i class="fas fa-times-circle text-2xl"></i>
+      </button>
+    </div>
+
+    <form
+      id="caseForm"
+      onsubmit="handleRegistration(event)"
+      class="p-10 overflow-y-auto custom-scrollbar"
+    >
+
+    <br><br>
+    
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-4">
+          <p
+            class="text-[10px] font-black text-blue-900 uppercase tracking-widest border-l-4 border-amber-500 pl-3"
+          >
+            Case Identifiers
+          </p>
+          <input
+            type="text"
+            name="cnrNumber"
+            placeholder="16-Digit CNR Number*"
+            required
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+          <input
+            type="text"
+            name="caseNumber"
+            placeholder="Official Case Number"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+          <input
+            type="text"
+            name="clientNames"
+            placeholder="Client Names (Petitioner/Respondent)"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+        </div>
+
+        <div class="space-y-4">
+          <p
+            class="text-[10px] font-black text-blue-900 uppercase tracking-widest border-l-4 border-amber-500 pl-3"
+          >
+            Court Information
+          </p>
+          <input
+            type="text"
+            name="courtName"
+            placeholder="Court Name (e.g., District Court Mumbai)"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+          <input
+            type="text"
+            name="courtSate"
+            placeholder="State/Jurisdiction"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+          <select
+            name="newCaseStatus"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all appearance-none"
+          >
+            <option value="Active">Active / Pending</option>
+            <option value="Hearing">Under Hearing</option>
+            <option value="Disposed">Disposed / Closed</option>
+          </select>
+        </div>
+
+        <div class="space-y-4 md:col-span-2">
+          <p
+            class="text-[10px] font-black text-blue-900 uppercase tracking-widest border-l-4 border-amber-500 pl-3"
+          >
+            Legal Basis
+          </p>
+          <div class="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              name="underActs"
+              placeholder="Under Acts (e.g. IPC, CrPC)"
+              class="bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+            />
+            <input
+              type="text"
+              name="underSections"
+              placeholder="Relevant Sections (e.g. 302, 420)"
+              class="bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <p
+            class="text-[10px] font-black text-blue-900 uppercase tracking-widest border-l-4 border-amber-500 pl-3"
+          >
+            Next Hearing Date
+          </p>
+          <input
+            type="date"
+            name="nextHearingDate"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+        </div>
+
+        <div class="space-y-4">
+          <p
+            class="text-[10px] font-black text-blue-900 uppercase tracking-widest border-l-4 border-amber-500 pl-3"
+          >
+            Case Age (In Years)
+          </p>
+          <input
+            type="number"
+            name="caseAge"
+            placeholder="e.g. 3"
+            class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl p-4 text-sm outline-none focus:border-blue-900 transition-all"
+          />
+        </div>
+      </div>
+
+      <div class="mt-12 flex space-x-4">
+        <button
+          type="submit"
+          class="flex-1 bg-blue-900 text-white font-black py-5 rounded-3xl text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-blue-800 transition-all active:scale-95"
+        >
+          Register Case & Sync with Database
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add case -->
+<div
+  onclick="openRegistration()"
+  class="bg-blue-900 p-6 rounded-2xl shadow-lg border-b-8 border-amber-500 hover:bg-blue-800 transition-all cursor-pointer flex flex-col justify-center items-center text-center group"
+>
+  <i
+    class="fas fa-plus-circle text-amber-500 text-3xl mb-2 group-hover:scale-110 transition-transform"
+  ></i>
+  <p class="text-white text-[10px] font-black uppercase tracking-widest">
+    Register New Case
+  </p>
+  <p class="text-blue-300 text-[9px] mt-1">Add manual record to NJDG</p>
+</div>
+
+<!-- Document summary -->
+<br>
+<div class="mb-10 px-2">
+  <div class="bg-white rounded-[2.5rem] shadow-xl border-4 border-white overflow-hidden group hover:border-blue-900 transition-all duration-500">
+    <div class="bg-gradient-to-r from-blue-900 to-blue-800 px-8 py-5 flex justify-between items-center">
+      <div>
+        <h3 class="text-white font-black uppercase tracking-widest text-sm flex items-center">
+          <i class="fas fa-robot mr-3 text-amber-500 animate-pulse"></i>
+          AI Document Intelligence
+        </h3>
+        <p class="text-blue-300 text-[10px] font-bold uppercase mt-1">Summarize Petitions, Orders & Evidence</p>
+      </div>
+      <div id="uploadSpinner" class="hidden">
+        <div class="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    </div>
+
+    <div class="p-8 flex flex-col md:flex-row items-center gap-6">
+      <div class="w-full md:w-1/3">
+        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-[2rem] cursor-pointer bg-slate-50 hover:bg-blue-50 transition-all">
+          <div class="flex flex-col items-center justify-center pt-5 pb-6">
+            <i class="fas fa-cloud-upload-alt text-2xl text-slate-300 mb-2"></i>
+            <p class="text-[10px] font-black text-slate-400 uppercase">Select PDF or Image</p>
+          </div>
+          <input type="file" id="caseSummarizerFile" class="hidden" accept=".pdf,.jpg,.jpeg,.png" />
+        </label>
+      </div>
+
+      <div class="w-full md:w-2/3">
+        <div id="summaryInitial">
+          <button onclick="processDocumentSummary()" id="summaryBtn" class="bg-blue-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all w-full md:w-auto">
+            Generate AI Summary
+          </button>
+        </div>
+
+        <div id="summaryResultBox" class="hidden animate-in fade-in slide-in-from-bottom-4">
+          <div class="bg-slate-50 rounded-2xl p-5 border-2 border-slate-100 relative">
+            <h5 class="text-[10px] font-black text-blue-900 uppercase tracking-widest mb-2">AI Briefing Result</h5>
+            <p id="aiSummaryText" class="text-xs text-slate-700 leading-relaxed whitespace-pre-wrap font-medium"></p>
+            <button onclick="resetSummarizer()" class="mt-4 text-[9px] font-black text-red-500 uppercase hover:underline">Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<br />
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+  <div
+    class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-blue-900 hover:shadow-md transition-all"
+  >
+    <p
+      class="text-blue-900 text-[10px] font-black uppercase tracking-widest mb-1"
+    >
+      Total Allocated Cases
+    </p>
+    <p class="text-4xl font-black text-slate-800"><%= stats.total %></p>
+  </div>
+  <div
+    class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-amber-500 hover:shadow-md transition-all"
+  >
+    <p
+      class="text-amber-600 text-[10px] font-black uppercase tracking-widest mb-1"
+    >
+      Active Matters
+    </p>
+    <p class="text-4xl font-black text-slate-800"><%= stats.active %></p>
+  </div>
+  <div
+    class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-emerald-600 hover:shadow-md transition-all"
+  >
+    <p
+      class="text-emerald-600 text-[10px] font-black uppercase tracking-widest mb-1"
+    >
+      Disposed Matters
+    </p>
+    <p class="text-4xl font-black text-slate-800"><%= stats.disposed %></p>
+  </div>
+  <div
+    class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-slate-400 hover:shadow-md transition-all"
+  >
+    <p
+      class="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1"
+    >
+      Source
+    </p>
+    <p class="text-xl font-black text-blue-900 mt-2">NJDG Master</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+  <% if (cases.length > 0) { %> <% cases.forEach(caseItem => { %>
+  <div
+    class="bg-white rounded-[1.5rem] shadow-sm border-2 border-slate-100 flex flex-col justify-between hover:border-blue-900 transition-all group overflow-hidden"
+  >
+    <div class="p-6">
+      <div class="flex justify-between items-start mb-3">
+        <div class="flex flex-col">
+          <span
+            class="text-[9px] font-black text-blue-900 uppercase tracking-tighter mb-1"
+            >CNR: <%= caseItem.cnrNumber %></span
+          >
+          <h4 class="text-lg font-black text-slate-900 truncate leading-tight">
+            <%= caseItem.clientNames || 'Petitioner' %> vs. Respondent
+          </h4>
+        </div>
+        <span
+          class="px-3 py-1 rounded-full text-[9px] font-black uppercase <%= caseItem.petitionerAdvocate === lawyerName ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700' %>"
+        >
+          <%= caseItem.petitionerAdvocate === lawyerName ? 'Petitioner Side' :
+          'Respondent Side' %>
+        </span>
+      </div>
+      <div
+        class="bg-slate-50 p-4 rounded-xl border border-slate-100 grid grid-cols-2 gap-4"
+      >
+        <div>
+          <p class="text-[9px] font-black text-slate-400 uppercase">
+            Case Type
+          </p>
+          <p class="text-xs font-bold text-blue-900">
+            <%= caseItem.caseType %>
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-[9px] font-black text-slate-400 uppercase">Room</p>
+          <p class="text-xs font-bold text-slate-700">
+            Hall <%= caseItem.courtHallNumber || 'N/A' %>
+          </p>
+        </div>
+        <div class="col-span-2 pt-2 border-t border-slate-200">
+          <p class="text-[9px] font-black text-slate-400 uppercase">
+            Next Listing
+          </p>
+          <p class="text-sm font-black text-blue-800">
+            <% if (caseItem.natureOfDisposal) { %><span
+              class="text-emerald-600 uppercase text-[10px]"
+              >Case Disposed</span
+            >
+            <% } else if (caseItem.nextHearingDate) { %><%= new
+            Date(caseItem.nextHearingDate).toLocaleDateString('en-IN', { day:
+            '2-digit', month: 'short', year: 'numeric' }) %> <% } else { %>TBD<%
+            } %>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div
+      class="bg-slate-50 p-4 border-t flex justify-between items-center group-hover:bg-blue-50"
+    >
+      <div class="flex space-x-2">
+        <button
+          onclick="openCaseModal('<%= caseItem.cnrNumber %>', 'view')"
+          class="p-2 bg-white border text-blue-900 rounded-lg hover:bg-blue-900 hover:text-white transition-all"
+        >
+          <i class="fas fa-folder-open"></i>
+        </button>
+        <button
+          onclick="openCaseModal('<%= caseItem.cnrNumber %>', 'notes')"
+          class="p-2 bg-white border text-slate-600 rounded-lg hover:bg-slate-800 hover:text-white transition-all"
+        >
+          <i class="fas fa-pen-nib"></i>
+        </button>
+      </div>
+      <button
+        onclick="openCaseModal('<%= caseItem.cnrNumber %>', 'reminder')"
+        class="px-4 py-2 bg-white border-2 border-amber-500 text-amber-600 rounded-lg text-[10px] font-black hover:bg-amber-500 hover:text-white transition-all"
+      >
+        View
+      </button>
+      <button
+        onclick="deleteCase('<%= caseItem.cnrNumber %>')"
+        class="p-2 bg-white border-2 border-red-100 text-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all"
+      >
+        <i class="fas fa-trash-alt text-xs"></i>
+      </button>
+    </div>
+  </div>
+  <% }) %> <% } %>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
+  <% if (cases.length > 0) { %> <% cases.forEach(caseItem => { %>
+  <div
+    class="bg-white rounded-[1.5rem] shadow-sm border-2 border-slate-100 flex flex-col justify-between hover:border-blue-900 transition-all group overflow-hidden"
+  ></div>
+  <% }) %> <% } else { %>
+  <div
+    class="col-span-full text-center py-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200"
+  >
+    <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">
+      No cases found in this portfolio
+    </p>
+  </div>
+  <% } %>
+</div>
+
+<% if (totalPages > 1) { %>
+<div
+  class="mt-12 flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-[2rem] shadow-sm border-2 border-slate-100 mb-20"
+>
+  <p
+    class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 md:mb-0"
+  >
+    Showing Page <%= currentPage %> of <%= totalPages %>
+  </p>
+
+  <div class="flex space-x-2">
+    <% if (currentPage > 1) { %>
+    <a
+      href="/lawyer/dashboard/<%= lawyerName %>?page=<%= currentPage - 1 %><%= (typeof searchQuery !== 'undefined' && searchQuery) ? '&search=' + searchQuery : '' %>"
+      class="px-4 py-2 bg-slate-50 border-2 border-slate-100 rounded-xl text-[10px] font-black text-slate-600 hover:border-blue-900 transition-all"
+    >
+      <i class="fas fa-chevron-left mr-1"></i> Prev
+    </a>
+    <% } %>
+
+    <div class="flex items-center space-x-1">
+      <% for(let i = 1; i <= totalPages; i++) { %>
+      <a
+        href="/lawyer/dashboard/<%= lawyerName %>?page=<%= i %><%= (typeof searchQuery !== 'undefined' && searchQuery) ? '&search=' + searchQuery : '' %>"
+        class="w-10 h-10 flex items-center justify-center rounded-xl font-black text-xs transition-all <%= i == currentPage ? 'bg-blue-900 text-white shadow-lg' : 'bg-white border-2 border-slate-50 text-slate-400 hover:border-blue-900' %>"
+      >
+        <%= i %>
+      </a>
+      <% } %>
+    </div>
+
+    <% if (currentPage < totalPages) { %>
+    <a
+      href="/lawyer/dashboard/<%= lawyerName %>?page=<%= parseInt(currentPage) + 1 %><%= (typeof searchQuery !== 'undefined' && searchQuery) ? '&search=' + searchQuery : '' %>"
+      class="px-4 py-2 bg-slate-50 border-2 border-slate-100 rounded-xl text-[10px] font-black text-slate-600 hover:border-blue-900 transition-all"
+    >
+      Next <i class="fas fa-chevron-right ml-1"></i>
+    </a>
+    <% } %>
+  </div>
+</div>
+<% } %>
+
+<div
+  id="caseModal"
+  class="hidden fixed inset-0 bg-blue-900/40 backdrop-blur-md flex items-center justify-center p-4 z-50"
+>
+  <div
+    class="bg-white rounded-[2rem] shadow-2xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col border-4 border-white"
+  >
+    <div class="flex justify-between items-center p-8 border-b-2 bg-slate-50">
+      <div class="flex items-center space-x-4">
+        <div class="h-12 w-1.5 bg-blue-900 rounded-full"></div>
+        <div>
+          <h3
+            class="text-2xl font-black text-blue-900 tracking-tighter"
+            id="modalTitle"
+          >
+            Case Dossier
+          </h3>
+          <p
+            id="modalCourtHeader"
+            class="text-[10px] font-bold text-amber-600 uppercase tracking-widest"
+          >
+            NJDG Data Integration System
+          </p>
+        </div>
+      </div>
+      <button
+        onclick="closeModal()"
+        class="w-12 h-12 flex items-center justify-center rounded-xl bg-white border-2 text-slate-400 hover:text-red-500 transition-all"
+      >
+        &times;
+      </button>
+    </div>
+
+    <div
+      class="flex-1 overflow-y-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8"
+    >
+      <div class="lg:col-span-3 space-y-6">
+        <div
+          class="p-6 bg-blue-900 rounded-3xl text-white shadow-xl relative overflow-hidden"
+        >
+          <p
+            class="text-[9px] uppercase font-black text-blue-300 tracking-widest mb-6"
+          >
+            Subject Information
+          </p>
+          <div class="space-y-4">
+            <div>
+              <label class="text-[9px] text-blue-300 uppercase font-black"
+                >Filing Party</label
+              >
+              <p id="modalClient" class="text-xl font-black">Loading...</p>
+            </div>
+            <div>
+              <label class="text-[9px] text-blue-300 uppercase font-black"
+                >Filed Date</label
+              >
+              <p id="modalDateFiled" class="text-xs font-bold">--/--/----</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-50 rounded-3xl p-6 border-2 border-slate-100">
+          <h5
+            class="text-[11px] font-black text-blue-900 uppercase mb-4 tracking-widest"
+          >
+            <i class="fas fa-history mr-2"></i> Procedural Timeline
+          </h5>
+          <div
+            id="modalTimeline"
+            class="max-h-60 overflow-y-auto space-y-4 pr-2"
+          ></div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 flex flex-col space-y-6">
+        <div
+          class="bg-white rounded-[2rem] border-2 border-slate-100 overflow-hidden h-64 shadow-lg flex flex-col"
+        >
+          <div class="bg-blue-900 px-6 py-4 flex items-center justify-between">
+            <span
+              class="text-[10px] font-black text-white uppercase tracking-widest"
+              >Counsel Intelligence AI</span
+            >
+            <div
+              class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"
+            ></div>
+          </div>
+          <iframe
+            id="aiSummaryIframe"
+            src=""
+            class="w-full flex-1 border-none"
+          ></iframe>
+        </div>
+        <div class="bg-slate-900 rounded-[2rem] border-4 border-amber-500/20 overflow-hidden shadow-2xl mt-6">
+    
+</div>
+
+        <div
+          class="bg-blue-50/50 p-6 rounded-[2rem] border-2 border-blue-100 shadow-sm"
+        >
+          <p
+            class="text-[11px] font-black text-blue-900 uppercase tracking-widest mb-4 flex items-center"
+          >
+            <i class="fas fa-chart-line mr-2"></i> Strategic Case Overview
+          </p>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <p class="text-[9px] font-black text-slate-400 uppercase mb-1">
+                Current Stage
+              </p>
+              <p
+                id="modalCurrentStage"
+                class="text-xs font-black text-blue-900 uppercase"
+              >
+                Loading...
+              </p>
+            </div>
+            <div>
+              <p class="text-[9px] font-black text-slate-400 uppercase mb-1">
+                Est. Disposal Time
+              </p>
+              <p
+                id="modalEstDisposal"
+                class="text-xs font-black text-amber-600"
+              >
+                -- Days
+              </p>
+            </div>
+            <div>
+              <p class="text-[9px] font-black text-slate-400 uppercase mb-1">
+                Total Hearings
+              </p>
+              <p
+                id="modalTotalHearings"
+                class="text-xs font-black text-slate-800"
+              >
+                0
+              </p>
+            </div>
+            <div>
+              <p class="text-[9px] font-black text-slate-400 uppercase mb-1">
+                Advocate Side
+              </p>
+              <p
+                id="modalAdvocateSide"
+                class="text-xs font-black text-slate-800"
+              >
+                Petitioner Side
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 space-y-6">
+        <div
+          class="bg-amber-50 p-6 rounded-[2rem] border-2 border-amber-100 shadow-sm"
+        >
+          <h4
+            class="font-black text-blue-900 text-sm uppercase mb-6 flex items-center"
+          >
+            <i class="fas fa-tasks mr-2 text-amber-600"></i> Legal Action Items
+          </h4>
+          <div class="space-y-3">
+            <input
+              type="text"
+              id="reminderText"
+              placeholder="Task description..."
+              class="w-full border-2 border-white rounded-xl p-3 text-sm focus:ring-4 focus:ring-amber-200 outline-none"
+            />
+            <input
+              type="datetime-local"
+              id="reminderDate"
+              class="w-full border-2 border-white rounded-xl p-3 text-sm focus:ring-4 focus:ring-amber-200 outline-none"
+            />
+            <button
+              onclick="saveReminder()"
+              class="w-full bg-blue-900 text-white font-black py-4 rounded-xl uppercase text-[10px] shadow-lg"
+            >
+              Assign Task
+            </button>
+            <div
+              id="reminderList"
+              class="mt-4 space-y-2 max-h-40 overflow-y-auto"
+            ></div>
+          </div>
+        </div>
+
+        <div class="p-6 bg-white rounded-[2rem] border-2 border-slate-100">
+          <h5
+            class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3"
+          >
+            Private Notes
+          </h5>
+          <textarea
+            id="modalNotes"
+            class="w-full border-2 border-slate-50 rounded-xl p-4 text-sm outline-none h-24 bg-slate-50"
+          ></textarea>
+          <button
+            onclick="savePrivateNotes()"
+            class="mt-3 w-full bg-slate-800 text-white text-[9px] font-black py-3 rounded-xl uppercase"
+          >
+            Update Records
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function closeModal(id) {
+    if (id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+    // General fallback for the main Dossier modal
+    document.getElementById("caseModal").classList.add("hidden");
+    document.body.style.overflow = "auto";
+  }
+
+  async function openCaseModal(cnrNumber, section = "view") {
+    const modal = document.getElementById("caseModal");
+    modal.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    document.getElementById("modalTitle").innerText = cnrNumber;
+
+    // 1. Fetch Basic Case Details (MongoDB)
+    try {
+        const res = await fetch(`/lawyer/case-details/${cnrNumber}`);
+        const data = await res.json();
+
+        if (data) {
+            document.getElementById("modalCourtHeader").innerText = data.courtName || "NJDG Master Record";
+            document.getElementById("modalClient").innerText = data.clientNames || "Petitioner Side";
+            document.getElementById("modalDateFiled").innerText = data.dateFiled ? new Date(data.dateFiled).toLocaleDateString() : "N/A";
+            document.getElementById("modalNotes").value = data.privateNotes || "";
+            document.getElementById("caseModal").dataset.activeCnr = cnrNumber;
+            document.getElementById("modalCurrentStage").innerText = data.natureOfDisposal ? `DISPOSED (${data.caseStages})` : data.caseStages || "Orders / Judgment";
+            document.getElementById("modalEstDisposal").innerText = (data.disposalTimeAdj || "422") + " Days";
+            document.getElementById("modalTotalHearings").innerText = data.totalHearings || "0";
+
+            renderReminders(data.reminders || []);
+            renderTimeline(data.hearingHistory || []);
+            updateDynamicAIBrief(cnrNumber); // This hits your AI Brief route
+        }
+    } catch (e) {
+        console.error("Data Fetch Error:", e);
+    }
+  }
+
+  function renderTimeline(history) {
+    const timeline = document.getElementById("modalTimeline");
+    if (!history || history.length === 0) {
+      timeline.innerHTML =
+        '<p class="text-slate-400 italic">No historical records.</p>';
+      return;
+    }
+    timeline.innerHTML = history
+      .map(
+        (h, index) => `
+      <div class="relative pl-8 pb-8 border-l-2 border-slate-200 last:border-0">
+        <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-900 border-4 border-white shadow-sm"></div>
+        <div class="bg-white p-4 rounded-xl border shadow-sm">
+          <span class="text-[10px] font-bold text-blue-600">${
+            h.hearingDate ? new Date(h.hearingDate).toDateString() : "N/A"
+          }</span>
+          <p class="text-xs font-bold text-slate-700">${
+            h.purposeOfHearing || "Listing"
+          }</p>
+          <p class="text-[9px] text-slate-400 mt-1">${
+            h.caseStages || "Active Stage"
+          }</p>
+        </div>
+      </div>`
+      )
+      .join("");
+  }
+
+  function renderReminders(reminders) {
+    const list = document.getElementById("reminderList");
+    const cnr = document.getElementById("caseModal").dataset.activeCnr; // Get current CNR
+
+    if (!reminders || reminders.length === 0) {
+      list.innerHTML =
+        '<p class="text-xs text-slate-400 italic text-center py-4">No active tasks.</p>';
+      return;
+    }
+
+    list.innerHTML = reminders
+      .map(
+        (r) => `
+      <div class="p-3 bg-white border rounded-xl flex justify-between items-center shadow-sm mb-2 group">
+        <div class="flex items-center space-x-3 truncate">
+          <input type="checkbox" 
+                 ${r.completed ? "checked" : ""} 
+                 onchange="toggleTaskStatus('${cnr}', '${r._id}', this.checked)"
+                 class="w-4 h-4 rounded border-slate-300 text-blue-900 focus:ring-blue-900">
+          
+          <div class="truncate">
+            <p class="font-black text-slate-700 text-[10px] truncate ${
+              r.completed ? "line-through opacity-50" : ""
+            }">${r.text}</p>
+            <p class="text-[8px] text-slate-400 font-mono">${new Date(
+              r.dateTime
+            ).toLocaleDateString()}</p>
+          </div>
+        </div>
+        <span class="text-[7px] px-1.5 py-0.5 rounded-md ${
+          r.completed
+            ? "bg-slate-100 text-slate-400"
+            : "bg-green-100 text-green-600"
+        } font-black uppercase">
+          ${r.completed ? "Done" : "Active"}
+        </span>
+      </div>`
+      )
+      .join("");
+  }
+
+  async function toggleTaskStatus(cnrNumber, reminderId, isCompleted) {
+    try {
+      const res = await fetch("/lawyer/toggle-reminder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cnrNumber: cnrNumber,
+          reminderId: reminderId,
+          completed: isCompleted,
+        }),
+      });
+
+      if (!res.ok) {
+        alert("Failed to update task status.");
+        // Optional: uncheck the box if it failed
+      }
+    } catch (e) {
+      console.error("Toggle Error:", e);
+    }
+  }
+
+  async function savePrivateNotes() {
+    // 1. Get the CNR that was stored when the modal opened
+    const cnrNumber = document.getElementById("caseModal").dataset.activeCnr;
+    const noteContent = document.getElementById("modalNotes").value;
+
+    if (!cnrNumber) {
+      alert("System Error: No active case identified.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/lawyer/update-note", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cnrNumber: cnrNumber,
+          note: noteContent,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Notes Secured in NJDG Master Records.");
+      } else {
+        const errorData = await res.json();
+        alert("Error: " + (errorData.message || "Failed to save."));
+      }
+    } catch (e) {
+      console.error("Save Note Error:", e);
+      alert("Connection failed. Check server logs.");
+    }
+  }
+
+  async function saveReminder() {
+    const cnrNumber = document.getElementById("caseModal").dataset.activeCnr;
+    const text = document.getElementById("reminderText").value;
+    const date = document.getElementById("reminderDate").value;
+    if (!text || !date) return alert("Task details required.");
+    const res = await fetch("/lawyer/add-reminder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cnrNumber, text, date }),
+    });
+    const result = await res.json();
+    if (result.success) {
+      renderReminders(result.reminders);
+      document.getElementById("reminderText").value = "";
+      document.getElementById("reminderDate").value = "";
+    }
+  }
+
+  async function deleteCase(cnr) {
+    if (confirm(`Remove CNR ${cnr}?`)) {
+      const res = await fetch(`/lawyer/delete-case/${cnr}`, {
+        method: "DELETE",
+      });
+      if (res.ok) window.location.reload();
+    }
+  }
+  function openAddModal() {
+    alert("Registering new case...");
+  }
+
+  async function updateDynamicAIBrief(cnrNumber) {
+    const iframe = document.getElementById("aiSummaryIframe");
+    const briefContainer = iframe.contentWindow.document;
+
+    try {
+      const res = await fetch(`/lawyer/ai-brief/${cnrNumber}`);
+      const ai = await res.json();
+
+      const html = `
+            <html><body style="font-family: sans-serif; padding: 15px; color: #1e293b; background: #f8fafc; margin:0;">
+                <div style="border-left: 5px solid ${
+                  ai.riskLevel === "HIGH" ? "#ef4444" : "#10b981"
+                }; background: white; padding: 15px; border-radius: 10px; shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <h2 style="font-size: 14px; margin: 0; color: #1e3a8a;">TACTICAL STRATEGY BRIEF</h2>
+                    <p style="font-size: 10px; font-weight: 800; color: ${
+                      ai.riskLevel === "HIGH" ? "#ef4444" : "#10b981"
+                    }; margin: 5px 0;">${ai.riskLevel} PRIORITY</p>
+                    <p style="font-size: 12px; font-weight: 600; margin-top: 10px;">${
+                      ai.strategy
+                    }</p>
+                    <div style="margin-top: 10px; font-size: 11px; color: #64748b; border-top: 1px solid #eee; pt: 10px;">
+                        ${ai.ageAnalysis} <br><strong>${ai.complexity}</strong>
+                    </div>
+                </div>
+            </body></html>`;
+
+      briefContainer.open();
+      briefContainer.write(html);
+      briefContainer.close();
+    } catch (e) {
+      briefContainer.write("AI analysis offline.");
+    }
+  }
+
+  async function initDashboardCharts() {
+    const res = await fetch(`/lawyer/stats-charts/<%= lawyerName %>`);
+    const data = await res.json();
+
+    // 1. Risk Chart (Bar)
+    new Chart(document.getElementById("riskChart"), {
+      type: "bar",
+      data: {
+        labels: ["0-1y", "1-2y", "2-5y", "5y+"],
+        datasets: [
+          {
+            label: "Cases",
+            data: data.riskData.map((d) => d.count),
+            backgroundColor: "#1e3a8a",
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+      },
+    });
+
+    // 2. Stage Chart (Doughnut)
+    new Chart(document.getElementById("stageChart"), {
+      type: "doughnut",
+      data: {
+        labels: data.stageData.map((d) => d._id || "Unknown"),
+        datasets: [
+          {
+            data: data.stageData.map((d) => d.count),
+            backgroundColor: ["#1e3a8a", "#3b82f6", "#93c5fd", "#60a5fa"],
+          },
+        ],
+      },
+      options: { maintainAspectRatio: false },
+    });
+
+    // 3. Outcome Chart (Pie)
+    new Chart(document.getElementById("outcomeChart"), {
+      type: "pie",
+      data: {
+        labels: data.outcomeData.map((d) => d._id || "Pending"),
+        datasets: [
+          {
+            data: data.outcomeData.map((d) => d.count),
+            backgroundColor: ["#10b981", "#ef4444", "#f59e0b", "#6366f1"],
+          },
+        ],
+      },
+      options: { maintainAspectRatio: false },
+    });
+
+    // 4. Load Chart (Line)
+    // 4. Load Chart (Interactive Line Graph)
+    new Chart(document.getElementById("loadChart"), {
+      type: "line",
+      data: {
+        // Formats "2024-10-25" into "25 Oct" for better UI
+        labels: data.loadData.map((d) => {
+          const date = new Date(d._id);
+          return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+          });
+        }),
+        datasets: [
+          {
+            label: "Hearings",
+            data: data.loadData.map((d) => d.count),
+            borderColor: "#f59e0b", // Amber color for warnings
+            backgroundColor: "rgba(245, 158, 11, 0.1)",
+            fill: true,
+            tension: 0.4, // Curves the line for a "modern" look
+            pointRadius: 5,
+            pointHoverRadius: 8,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.raw} Hearings Scheduled`,
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { stepSize: 1, precision: 0 },
+          },
+        },
+      },
+    });
+  }
+
+  // Run on page load
+  initDashboardCharts();
+
+  async function handleRegistration(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    if (data.cnrNumber.length !== 16) {
+        return alert("Error: CNR Number must be exactly 16 characters.");
+    }
+
+    const currentLawyer = "<%= lawyerName %>";
+
+    try {
+        const response = await fetch(`/lawyer/upsert-case/${encodeURIComponent(currentLawyer)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data), // Sending raw strings now
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            alert("Case Synchronized Successfully!");
+            window.location.reload(); 
+        } else {
+            alert("Sync Failed: " + result.error);
+        }
+    } catch (err) {
+        alert("Server connection error.");
+    }
+}
+
+  function openRegistration() {
+    document.getElementById("registerCaseModal").classList.remove("hidden");
+  }
+
+  async function processDocumentSummary() {
+    // Demo Trick: If you hold ALT while clicking, it shows a fake summary instantly
+    if (window.event && window.event.altKey) {
+        document.getElementById('summaryInitial').classList.add('hidden');
+        document.getElementById('summaryResultBox').classList.remove('hidden');
+        document.getElementById('aiSummaryText').innerText = "DEMO SUMMARY:\n- Parties: State vs. Rahul Sharma\n- Offence: BNS Section 318 (Cheating)\n- Fact: Fraudulent transaction of ₹25,000 via phishing link.\n- Priority: High (Evidence stage).";
+        return;
+    }
+
+    const fileInput = document.getElementById('caseSummarizerFile');
+    const summaryBtn = document.getElementById('summaryBtn');
+    const spinner = document.getElementById('uploadSpinner');
+    const resultBox = document.getElementById('summaryResultBox');
+    const summaryInitial = document.getElementById('summaryInitial');
+    const textField = document.getElementById('aiSummaryText');
+
+    if (!fileInput.files[0]) return alert("Please select a file first.");
+
+    // UI Loading State
+    summaryBtn.disabled = true;
+    summaryBtn.innerText = "ANALYZING DOCUMENT...";
+    spinner.classList.remove('hidden');
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]); // Key MUST be "file" to match backend
+
+    try {
+        const response = await fetch('/lawyer/summarize-case', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.summary) {
+            summaryInitial.classList.add('hidden');
+            resultBox.classList.remove('hidden');
+            textField.innerText = data.summary;
+        } else {
+            alert("The AI is busy or document text is unreadable. Try again.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Server Error: Check if Hugging Face Space is 'Running'.");
+    } finally {
+        summaryBtn.disabled = false;
+        summaryBtn.innerText = "GENERATE AI SUMMARY";
+        spinner.classList.add('hidden');
+    }
+}
+
+function resetSummarizer() {
+    document.getElementById('caseSummarizerFile').value = '';
+    document.getElementById('summaryInitial').classList.remove('hidden');
+    document.getElementById('summaryResultBox').classList.add('hidden');
+}
+
+let currentIntelMode = 'approach';
+
+function switchIntelTab(mode) {
+    currentIntelMode = mode;
+    const input = document.getElementById('intelInput');
+    const btnApp = document.getElementById('btn-approach');
+    const btnMap = document.getElementById('btn-mapper');
+
+    if(mode === 'approach') {
+        input.placeholder = "Enter CNR for Tactics...";
+        btnApp.className = "px-4 py-2 text-[10px] font-black rounded-lg bg-amber-500 text-slate-900";
+        btnMap.className = "px-4 py-2 text-[10px] font-black rounded-lg text-slate-400";
+    } else {
+        input.placeholder = "Enter IPC Section (e.g., 420)...";
+        btnMap.className = "px-4 py-2 text-[10px] font-black rounded-lg bg-blue-600 text-white";
+        btnApp.className = "px-4 py-2 text-[10px] font-black rounded-lg text-slate-400";
+    }
+}
+
+async function runIntelSearch() {
+    const val = document.getElementById('intelInput').value;
+    const loader = document.getElementById('intelLoader');
+    const box = document.getElementById('intelResultBox');
+    const content = document.getElementById('intelContent');
+    const type = document.getElementById('intelType');
+
+    if(!val) return alert("Please enter input.");
+
+    loader.classList.remove('hidden');
+    box.classList.add('hidden');
+
+    try {
+        const res = await fetch('/lawyer/legal-intelligence', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                cnrNumber: currentIntelMode === 'approach' ? val : null,
+                ipcSection: currentIntelMode === 'mapper' ? val : null,
+                mode: currentIntelMode,
+                lawyerName: "<%= lawyerName %>"
+            })
+        });
+
+        const data = await res.json();
+        type.innerText = data.type === 'static' ? "Verified Mapping" : "AI Counsel Analysis";
+        content.innerText = data.result;
+        box.classList.remove('hidden');
+    } catch (e) {
+        content.innerText = "System error. Please verify input.";
+        box.classList.remove('hidden');
+    } finally {
+        loader.classList.add('hidden');
+    }
+}
+</script>
+
+<% if (lawyerName === "B C SEETHA RAMA RAO") { %>
+<section class="mt-12 mb-10 px-2">
+  <div
+    class="bg-white rounded-[2rem] shadow-2xl border-4 border-white overflow-hidden"
+  >
+    <div class="bg-blue-900 px-8 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-chart-pie text-amber-500"></i>
+        <h3 class="text-white font-black uppercase tracking-widest text-sm">
+          Advanced Performance Analytics
+        </h3>
+      </div>
+      <span
+        class="text-[10px] font-bold text-blue-300 uppercase tracking-tighter"
+        >Verified NJDG Data Insights</span
+      >
+    </div>
+
+    <div class="flex justify-center w-full mt-8">
+      <div
+        class="w-full max-w-6xl bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden"
+      >
+        <div class="relative w-full" style="padding-top: 56.25%">
+          <iframe
+            class="absolute top-0 left-0 w-full h-full"
+            title="Final Lawyer Dashboard"
+            src="https://app.powerbi.com/view?r=eyJrIjoiNjc5MDQzMjEtYzE5Ny00NjYwLWJmZDItYmY1NDAxMjA3MTY2IiwidCI6IjA4NzI3N2ViLTk5YzgtNDgzMy1iY2FlLTU2MWUzMjhlNWRjZCJ9"
+            frameborder="0"
+            allowFullScreen="true"
+          >
+          </iframe>
+        </div>
+      </div>
+    </div>
+    <br>
+  </div>
+</section>
+<% } %> <%- include('partials/footer') %>
