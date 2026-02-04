@@ -10,8 +10,8 @@ const generateInsights = async () => {
         console.time("Generation Time");
 
         // 1. Ensure Indexes for high-speed lookups
-        await mongoose.connection.collection('cases').createIndex({ cnrNumber: 1 });
-        await mongoose.connection.collection('hearings').createIndex({ cnrNumber: 1 });
+        // await mongoose.connection.collection('cases').createIndex({ cnrNumber: 1 });
+        // await mongoose.connection.collection('hearings').createIndex({ cnrNumber: 1 });
 
         const insights = await Case.aggregate([
             {
